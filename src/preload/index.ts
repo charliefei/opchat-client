@@ -1,16 +1,12 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
 const api = {
-  openWin: (routePath: string) => {
-    electronAPI.ipcRenderer.invoke('open-win', routePath)
-  }
+  openAddDialogWin: () => {
+    electronAPI.ipcRenderer.send('open-add-dialog')
+  },
 }
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)

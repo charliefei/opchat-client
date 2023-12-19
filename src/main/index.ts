@@ -1,10 +1,9 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import createTray from './tray'
-// @ts-ignore
-import { createChildWin } from './event'
+import { openAddDialogWin } from "./listener/addDialog";
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -56,7 +55,8 @@ app.whenReady().then(() => {
   const mainWindow = createWindow()
   // 创建系统托盘图标
   createTray()
-  createChildWin(mainWindow)
+
+  ipcMain.on('open-add-dialog', () => openAddDialogWin({parentWin: mainWindow}))
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

@@ -12,15 +12,20 @@ interface Socket {
 
 const socket: Socket = {
   websocket: null,
+
   init: () => {
-    const reconnectInterval = 2000;
+    const reconnectInterval = 3000;
     let reconnectTimer: NodeJS.Timeout | null = null;
 
     const reconnect = () => {
       if(!localStorage.getItem('uid')) return
       if (!socket.websocket || socket.websocket.readyState === WebSocket.CLOSED) {
-        console.log('尝试重新连接Websocket...');
-        socket.init();
+        console.log('尝试3次重新连接Websocket...');
+        for (let i = 0; i < 3; i++) {
+          socket.init();
+          if (socket.websocket?.OPEN === WebSocket.OPEN) 
+            break;
+        }
       }
     };
 
@@ -48,10 +53,10 @@ const socket: Socket = {
       console.log("websocket消息 --- ", e);
       const msgResp = JSON.parse(e.data) as MsgResp
       const messageStore = useMessageStore()
-      
+
       switch (msgResp.action) {
         case MsgTypeEnum.PRIVATE_MESSAGE:
-          
+          messageStore.receiveMsg(msgResp.data);
           break;
         default:
           console.log('未知消息类型 --- ', msgResp);
@@ -59,6 +64,7 @@ const socket: Socket = {
       }
     };
   },
+
   send: (e) => {
     if (socket.websocket?.readyState === 0) {
       setTimeout(() => {
@@ -68,6 +74,7 @@ const socket: Socket = {
       socket.websocket?.send(JSON.stringify(e))
     }
   },
+
   close: () => {
     socket.websocket?.close()
   }

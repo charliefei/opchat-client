@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router'
+import AddDialogWin from "@renderer/views/wins/add-dialog-win/AddDialogWin.vue";
 
 export default [
   {
@@ -16,11 +17,11 @@ export default [
         path: '/home',
         component: () => import('@renderer/views/home/Home.vue'),
         name: 'home',
-        redirect: '/home/main',
+        redirect: '/home/apply',
         children: [
           {
-            path: '/home/main',
-            component: () => import('@renderer/views/home/home-main/HomeMain.vue')
+            path: '/home/apply',
+            component: () => import('@renderer/views/home/contact-apply/ContactApply.vue')
           }
         ]
       },
@@ -49,7 +50,7 @@ export default [
     ]
   },
   {
-    path: '/add-object-win',
-    component: () => import('@renderer/wins/AddObjectWin.vue')
-  }
+    path: '/add-dialog',
+    component: AddDialogWin
+  },
 ] as RouteRecordRaw[]

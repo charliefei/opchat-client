@@ -8,6 +8,7 @@ import '@quasar/extras/material-icons-outlined/material-icons-outlined.css'
 // Import Quasar css
 import 'quasar/src/css/index.sass'
 
+import socket from "@renderer/api/ws/websocket";
 import router from './router'
 
 import { createApp } from 'vue'
@@ -17,13 +18,15 @@ import App from './App.vue'
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
-createApp(App)
-  .use(Quasar, {
-    plugins: {
-      Notify
-    }, // import Quasar plugins and add here
-    lang: quasarLang
-  })
-  .use(router)
-  .use(pinia)
-  .mount('#app')
+socket.init()
+const app = createApp(App)
+app.config.globalProperties.socket = socket
+app.use(Quasar, {
+  plugins: {
+    Notify
+  }, // import Quasar plugins and add here
+  lang: quasarLang
+})
+app.use(router)
+app.use(pinia)
+app.mount('#app')

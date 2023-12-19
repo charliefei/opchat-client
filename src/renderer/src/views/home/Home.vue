@@ -3,7 +3,7 @@
     <q-splitter
       v-model="splitterModel"
       unit="px"
-      :separator-style="{width: '1px', backgroundColor: '#eee'}"
+      :separator-style="{width: '0px', backgroundColor: '#eee'}"
       disable 
       class="h-screen"
     >
@@ -58,7 +58,9 @@
         </div>
       </template>
       <template v-slot:after>
+        <main class="h-full bg-slate-300 dark:bg-[rgb(17,17,17)] dark:text-white overflow-hidden">
           <router-view></router-view>
+        </main>
       </template>
     </q-splitter>
   </main>
@@ -72,7 +74,8 @@ const splitterModel = ref(250)
 const addDialogRef = ref()
 const onMenuItemClick = (type: number) => {
   if(type == 1) {
-    addDialogRef.value.dialogRef.show();
+    // addDialogRef.value.dialogRef.show();
+    window.api.openAddDialogWin()
   } else if (type == 2) {
     
   }

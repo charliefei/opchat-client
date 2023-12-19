@@ -45,8 +45,8 @@ type UserItem = {
   user_id: number,
   nickname: string,
   email: string,
-  personal_note: string,
-  sex: number,
+  personal_note?: string,
+  sex?: number,
   avatar: string
 }
 
@@ -78,5 +78,6 @@ type MsgType = {
   msg_id: number,
   msg_receiver: number,
   msg_sender: number,
-  msg_type: "text"
+  msg_type: "text",
+  msg_timestamp?: number
 }

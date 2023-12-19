@@ -25,6 +25,8 @@
     "@emoji-mart/data": "^1.1.2",
     "@quasar/extras": "^1.16.7",
     "axios": "^1.6.0",
+    "dayjs": "^1.11.10",
+    "dexie": "^3.2.4",
     "electron-updater": "^6.1.1",
     "emoji-mart": "^5.5.2",
     "pinia": "^2.1.7",

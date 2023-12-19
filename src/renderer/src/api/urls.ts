@@ -7,5 +7,6 @@ export default {
 
   getFriendList: '/get_friend_list',
 
-  sendPrivateMessage: '/send_private_message'
+  sendPrivateMessage: '/send_private_message',
+  getUnreadPrivateMessage: '/get_unread_private_message'
 }

@@ -28,10 +28,10 @@
             @scroll="scrollListener"
           >
             <q-chat-message
-              v-for="item in messageList"
+              v-for="item in computedMessageList"
               :key="item.id"
               :text="[item.content]"
-              :stamp="item.stamp"
+              :stamp="item.stamp?.toString()"
               :sent="item.self"
               :text-color="item.self ? '': 'white'"
               :bg-color="item.self ? 'amber-7' : 'primary'"
@@ -94,25 +94,31 @@
 import data from '@emoji-mart/data'
 import { Picker } from 'emoji-mart'
 import { QScrollArea } from 'quasar';
-import { nextTick, onMounted, ref, reactive, watch } from 'vue';
+import { nextTick, onMounted, ref, reactive, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@renderer/store/user'
-import socket from "@renderer/api/ws/websocket";
+import { useMessageStore } from '@renderer/store/message'
+import MsgApis from "@renderer/api/msg";
 const $route = useRoute()
 const userStore = useUserStore()
-const messageList = reactive([
-  {
-    id: 1,
-    self: true,
-    content: 'hey, how are you?',
-    stamp: new Date('1998/10/21 12:00:00').toLocaleString('zh-CN')
-  },
-  {
-    id: 2,
-    content: 'doing fine, how r you?',
-    stamp: new Date('1998/10/21 12:10:55').toLocaleString('zh-CN')
-  }
-])
+const messageStore = useMessageStore()
+
+type MessageType = {
+  id: number,
+  self: boolean,
+  content: any,
+  stamp?: number | string
+}
+const messageList = reactive<MessageType[]>([])
+const computedMessageList = computed(() => {
+  return messageList.reduce((acc, cur) => {
+    const isDuplicate = acc.some(item => item.id === cur.id)
+    if(!isDuplicate) {
+      acc.push(cur)
+    }
+    return acc
+  }, [] as MessageType[])
+})
 const text = ref('')
 
 // 滚动条自动触底逻辑
@@ -124,19 +130,36 @@ const verticalSize = ref(scrollAreaRef.value?.getScroll().verticalSize)
 const scrollListener = info => verticalSize.value = info.verticalSize
 watch(() => verticalSize.value, () => scrollToBottom())
 
+const getMsgList = () => {
+  messageStore.getMsgListLocal().then(value => {
+    value.forEach(msg => {
+      messageList.push({
+        id: msg.msg_id,
+        self: msg.msg_sender === userStore.userInfo.user_id,
+        content: msg.msg_content,
+        stamp: new Date(Number(msg.msg_timestamp)).toLocaleString('zh-CN')
+      })
+    })
+  })
+}
+
 // 发送文本消息
 const sendTextMsg = async () => {
-  console.log(text.value);
+  console.log(userStore.userInfo.nickname + "发送：", text.value);
   if(text.value !== '') {
-    socket.send({
+    MsgApis.sendPrivateMessage({
       msg_sender: userStore.userInfo.user_id,
-      msg_receiver: $route.query.id,
+      msg_receiver: Number($route.query.id),
       msg_type: 'text',
       msg_content: text.value
     })
     text.value = ''
   }
 }
+
+messageStore.$subscribe(async () => {
+  await getMsgList()
+})
 
 // 展示emoji表情列表
 const showEmojiPicker = async () => {
@@ -148,7 +171,7 @@ const showEmojiPicker = async () => {
     previewPosition: 'none',
     skinTonePosition: 'search',
     onEmojiSelect: (e) => {
-      console.log(e);
+      // console.log(e);
       text.value = text.value.concat(e.native)
     }
   })
@@ -156,8 +179,18 @@ const showEmojiPicker = async () => {
   emojiPickerEl?.appendChild(picker)
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 刷新消息
+  await getMsgList()
+  // 获取未读消息
+  messageStore.getUnreadMsgList(userStore.userInfo.user_id)
+  .then(async value => {
+    if(value && value.length !== 0) {
+      await messageStore.saveBatchMsgToLocal(value)
+      // 刷新消息
+      await getMsgList()
+    }
+  })
   scrollToBottom()
-  // socket.init()
 })
 </script>
