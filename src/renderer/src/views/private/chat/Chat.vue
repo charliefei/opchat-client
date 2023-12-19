@@ -3,10 +3,10 @@
     <header class="h-14 border-b border-b-zinc-800 pt-5 pb-2 z-50 drag">
       <div class="flex justify-between items-center px-3">
         <div class="font-bold text-lg no-drag">{{ $route.query.name }}</div>
-        <div class="flex w-2/5 justify-evenly items-center dark:text-white no-drag">
-          <q-icon name="sms" size="25px"></q-icon>
-          <q-icon name="manage_accounts" size="25px"></q-icon>
-          <q-icon name="settings_applications" size="25px"></q-icon>
+        <div class="flex gap-4 items-center dark:text-white no-drag">
+          <q-icon class="cursor-pointer" name="o_featured_video" size="25px"></q-icon>
+          <q-icon class="cursor-pointer" name="o_video_camera_front" size="25px"></q-icon>
+          <q-icon class="cursor-pointer" name="o_settings" size="25px"></q-icon>
         </div>
       </div>
     </header>
@@ -58,7 +58,7 @@
           <ul class="flex text-2xl">
             <li class="mr-2">
               <a href="javascript:;" title="emoji">
-                <q-icon name="emoji_emotions"/>
+                <q-icon name="o_emoji_emotions"/>
                 <q-popup-proxy @before-show="showEmojiPicker" class="bg-transparent h-[320px]">
                   <div id="emojiPickerEl"></div>
                 </q-popup-proxy>
@@ -67,9 +67,9 @@
             <li>
               <a href="javascript:;" title="图片">
                 <label class="cursor-pointer" for="file">
-                  <q-icon name="image"/>
+                  <q-icon name="o_image"/>
                 </label>
-                <input @change="sendImgMsg" type="file" id="file" class="hidden">
+                <input type="file" id="file" class="hidden">
               </a>
             </li>
           </ul>
@@ -97,6 +97,7 @@ import { QScrollArea } from 'quasar';
 import { nextTick, onMounted, ref, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@renderer/store/user'
+import socket from "@renderer/api/ws/websocket";
 const $route = useRoute()
 const userStore = useUserStore()
 const messageList = reactive([
@@ -123,27 +124,15 @@ const verticalSize = ref(scrollAreaRef.value?.getScroll().verticalSize)
 const scrollListener = info => verticalSize.value = info.verticalSize
 watch(() => verticalSize.value, () => scrollToBottom())
 
-// 发送base64图片消息
-const sendImgMsg = (e) => {
-  const url = URL.createObjectURL(e.target.files[0])
-  console.log(url);
-  messageList.push({
-    id: 4,
-    self: true,
-    content: url,
-    stamp: new Date().toLocaleString('zh-CN')
-  })
-}
-
 // 发送文本消息
-const sendTextMsg = () => {
+const sendTextMsg = async () => {
   console.log(text.value);
   if(text.value !== '') {
-    messageList.push({
-      id: 3,
-      self: true,
-      content: text.value,
-      stamp: new Date().toLocaleString('zh-CN')
+    socket.send({
+      msg_sender: userStore.userInfo.user_id,
+      msg_receiver: $route.query.id,
+      msg_type: 'text',
+      msg_content: text.value
     })
     text.value = ''
   }
@@ -169,5 +158,6 @@ const showEmojiPicker = async () => {
 
 onMounted(() => {
   scrollToBottom()
+  // socket.init()
 })
 </script>

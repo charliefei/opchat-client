@@ -53,19 +53,12 @@ defineExpose({
 })
 const keyword = ref('')
 const platform = ref('')
-const searchUserList = ref<{
-  avatar: string,
-  email: string,
-  nickname: string,
-  personal_note: string,
-  sex: string,
-  user_id: string | number
-}[]>([])
+const searchUserList = ref<UserItem[]>([])
 const searchUser = () => {
   reqInfo(keyword.value)
     .then(({ data: res }) => {
       console.log(res);
-      searchUserList.value = res.data[0]
+      searchUserList.value = res.data
     })
 }
 

@@ -75,11 +75,11 @@ const splitterModel = ref(62)
 const tabs = [
   {
     to: '/home',
-    icon: 'other_houses',
+    icon: 'o_other_houses',
   },
   {
     to: '/private',
-    icon: 'email'
+    icon: 'o_email'
   }
 ]
 const guildList = ref([

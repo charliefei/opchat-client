@@ -3,10 +3,10 @@
     <header class="h-14 border-b border-b-zinc-800 pt-5 pb-2 z-50 drag">
       <div class="flex justify-between items-center px-3">
         <div class="font-bold text-lg no-drag">{{ name }}</div>
-        <div class="flex w-2/5 justify-evenly items-center dark:text-white no-drag">
-          <q-icon name="sms" size="25px"></q-icon>
-          <q-icon name="manage_accounts" size="25px"></q-icon>
-          <q-icon name="settings_applications" size="25px"></q-icon>
+        <div class="flex gap-4 items-center dark:text-white no-drag">
+          <q-icon class="cursor-pointer" name="o_featured_video" size="25px"></q-icon>
+          <q-icon class="cursor-pointer" name="o_video_camera_front" size="25px"></q-icon>
+          <q-icon class="cursor-pointer" name="o_settings" size="25px"></q-icon>
         </div>
       </div>
     </header>

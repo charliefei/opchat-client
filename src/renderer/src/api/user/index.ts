@@ -1,16 +1,17 @@
 import request from '../request'
-import { HttpApiEnum } from '../enums'
+import urls from '../urls'
 
 export const sendCaptcha = (email: string) =>
-  request.post(HttpApiEnum.SEND_CAPTCHA + `?email=${email}`)
-
+  request.post<BaseResp<null>>(urls.sendCaptcha + `?email=${email}`)
 
 export const reqRegister = (req: UserRegisterReq) =>
-  request.post(HttpApiEnum.REGISTER, req)
-
+  request.post<BaseResp<number>>(urls.register, req)
 
 export const reqLogin = (req: UserLoginReq) =>
-  request.post(HttpApiEnum.LOGIN, req) 
+  request.post<BaseResp<UserLoginResp>>(urls.login, req)
 
 export const reqInfo = (keyword: string) =>
-  request.get(HttpApiEnum.INFO + `?keyword=${keyword}`)
+  request.get<BaseResp<Array<UserItem>>>(urls.info + `?keyword=${keyword}`)
+
+export const reqInfoById = (user_id: number) => 
+  request.get<BaseResp<UserInfoType>>(urls.infoById + `?user_id=${user_id}`)

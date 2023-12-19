@@ -25,22 +25,22 @@
           >
             <q-list>
               <q-item 
-                v-for="contact in contacts" 
-                :key="contact.id" 
+                v-for="item in friends" 
+                :key="item.user_id" 
                 class="q-my-sm" 
                 clickable 
                 v-ripple
-                @click="goToChat(contact)"
+                @click="goToChat(item)"
               >
                 <q-item-section avatar>
                   <q-avatar color="primary" text-color="white">
-                    {{ contact.letter }}
+                    {{item.nickname[0]}}
                   </q-avatar>
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label>{{ contact.name }}</q-item-label>
-                  <q-item-label class="text-slate-400" lines="2">{{ contact.email }}</q-item-label>
+                  <q-item-label>{{ item.nickname }}</q-item-label>
+                  <q-item-label class="text-slate-400" lines="2">{{ item.email }}</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -50,51 +50,51 @@
 
       <template v-slot:after>
         <router-view></router-view>
+        <main v-show="$route.fullPath == '/private'" class="h-full bg-slate-300 dark:bg-[rgb(17,17,17)] dark:text-white overflow-hidden">
+        </main>
       </template>
     </q-splitter>
   </main>
 </template>
 
 <script setup lang='ts'>
-import {ref} from 'vue'
-import { useRouter } from 'vue-router';
+import {onMounted, ref} from 'vue'
+import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from '@renderer/store/user'
+import FriendApis from '@renderer/api/friend'
+import { reqInfoById } from '@renderer/api/user'
 const splitterModel = ref(28)
 const $router = useRouter()
+const $route = useRoute()
+const userStore = useUserStore()
 
-const contacts = [ 
-  {
-    id: 1,
-    name: 'Fei Rui',
-    email: 'charliefei839@gmail.com',
-    letter: 'F'
-  }, 
-  {
-    id: 2,
-    name: 'Charlie Fei',
-    email: 'charliefei839@outlook.com',
-    letter: 'C'
-  }, 
-  {
-    id: 3,
-    name: '张维为',
-    email: 'iloveusa@gmail.com',
-    letter: '张'
-  }, 
-  {
-    id: 4,
-    name: '郭继承',
-    email: 'rulai@qq.com',
-    letter: '郭'
-  }
-]
+const friends = ref<UserInfoType[]>([])
 
-const goToChat = (contact: any) => {
+const goToChat = (item: any) => {
   $router.push({
     path: '/private/chat',
     query: {
-      id: contact.id,
-      name: contact.name
+      id: item.user_id,
+      name: item.nickname
     }
   })
 }
+
+const getFriendList = async () => {
+  const {data: res} = await FriendApis.getFriendList(Number(userStore.userInfo.user_id))
+  console.log('@@@', res);
+  if (res.data.length > 0) {
+    res.data.forEach(async (value) => {
+      const {data: res} = await reqInfoById(value.friend_id)
+      console.log('info: ', res);
+      if(res.data) {
+        friends.value.push(res.data)
+      }
+    })
+  }
+}
+
+onMounted(() => {
+  getFriendList()
+})
 </script>

@@ -4,12 +4,11 @@ import { Quasar, Notify } from 'quasar'
 import quasarLang from 'quasar/lang/zh-CN'
 // Import icon libraries
 import '@quasar/extras/material-icons/material-icons.css'
+import '@quasar/extras/material-icons-outlined/material-icons-outlined.css'
 // Import Quasar css
 import 'quasar/src/css/index.sass'
 
 import router from './router'
-
-import '@renderer/websocket/websocket'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'

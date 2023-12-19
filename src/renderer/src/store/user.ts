@@ -1,23 +1,24 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import socket from '@renderer/api/ws/websocket'
 
 export const useUserStore = defineStore('user', () => {
-  const uid = ref(0)
-  const userInfo = ref({
-    avatar: '',
-    email: '',
+  const userInfo = ref<UserLoginResp>({
+    user_id: 0,
+    token: '',
     nickname: '',
-    user_id: '',
-    sex: ''
+    email: '',
   })
   const token = ref('')
-  const userLogin = (data: any) => {
-    userInfo.value = data[0]
-    token.value = data[0].token
+  const userLogin = (data: UserLoginResp) => {
+    userInfo.value = data
+    token.value = data.token
     localStorage.setItem('token', token.value)
+    localStorage.setItem('uid', data.user_id.toString())
+    socket.init()
   }
 
-  return { uid, userInfo, token, userLogin }
+  return { userInfo, token, userLogin }
 }, {
   persist: {
     paths: ['userInfo']
